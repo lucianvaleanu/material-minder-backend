@@ -1,53 +1,46 @@
 package com.lucianvaleanu.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
-import java.util.Objects;
 
+@Entity
+@Table(name = "project")
 public class Project {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "project_id_gen")
+    @SequenceGenerator(name = "project_id_gen", sequenceName = "project_id_seq", allocationSize = 1)
+    @Column(name = "id", nullable = false)
     private Integer id;
-    private String title;
-    private LocalDate date;
 
-    public Project(Integer id, String title, LocalDate date) {
-        this.id = id;
-        this.title = title;
-        this.date = date;
-    }
+    @Column(name = "title", nullable = false, length = Integer.MAX_VALUE)
+    private String title;
+
+    @Column(name = "project_date", nullable = false)
+    private LocalDate projectDate;
 
     public Integer getId() {
         return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public LocalDate getDate() {
-        return date;
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public LocalDate getProjectDate() {
+        return projectDate;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Project project = (Project) o;
-        return Objects.equals(id, project.id) && Objects.equals(title, project.title) && Objects.equals(date, project.date);
+    public void setProjectDate(LocalDate projectDate) {
+        this.projectDate = projectDate;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, title, date);
-    }
 }
