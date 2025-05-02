@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
     List<Project> findAll();
+    List<Project> findByUserId(int userId);
     Optional<Project> findById(int id);
     Project save(Project project);
     void deleteById(int id);

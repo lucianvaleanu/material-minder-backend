@@ -13,8 +13,4 @@ public class MaterialMinderBackendApplication {
         SpringApplication.run(MaterialMinderBackendApplication.class, args);
     }
 
-    @GetMapping("/hello")
-    public String helloWorld(){
-        return "Hello World!";
-    }
 }
