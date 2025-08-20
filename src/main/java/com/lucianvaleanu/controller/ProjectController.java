@@ -2,11 +2,13 @@ package com.lucianvaleanu.controller;
 
 import com.lucianvaleanu.model.Project;
 import com.lucianvaleanu.service.ProjectService;
+import com.lucianvaleanu.utils.dto.ProjectDTO;
 import com.lucianvaleanu.utils.dto.ProjectItemDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/projects")
@@ -19,8 +21,10 @@ public class ProjectController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Project>> getAllProjectsByUserId(@PathVariable int userId) {
-        List<Project> projects = projectService.getAllProjectsByUserId(userId);
+    public ResponseEntity<List<ProjectDTO>> getAllProjectsByUserId(@PathVariable int userId) {
+        List<ProjectDTO> projects = projectService.getAllProjectsByUserId(userId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(projects);
     }
 
@@ -31,19 +35,40 @@ public class ProjectController {
     }
 
     @PutMapping("/{projectId}")
-    public ResponseEntity<Project> updateProject(@PathVariable int projectId, @RequestBody Project project) {
-        if (!projectService.getAllProjectsByUserId(project.getUser().getId()).stream()
+    public ResponseEntity<ProjectDTO> updateProject(@PathVariable int projectId, @RequestBody ProjectDTO projectDTO) {
+        // Check if project exists for the user
+        if (!projectService.getAllProjectsByUserId(projectDTO.userId()).stream()
                 .anyMatch(p -> p.getId().equals(projectId))) {
             return ResponseEntity.notFound().build();
         }
+        Project project = toEntity(projectDTO);
         project.setId(projectId);
         projectService.updateProject(project);
-        return ResponseEntity.ok(project);
+        return ResponseEntity.ok(toDTO(project));
     }
 
     @GetMapping("/{projectId}/items")
     public ResponseEntity<List<ProjectItemDTO>> getProjectItemsList(@PathVariable int projectId) {
         List<ProjectItemDTO> items = projectService.getProjectItemsList(projectId);
         return ResponseEntity.ok(items);
+    }
+
+    // Mapping methods
+    private ProjectDTO toDTO(Project project) {
+        return new ProjectDTO(
+                project.getId(),
+                project.getTitle(),
+                project.getProjectDate(),
+                project.getUser() != null ? project.getUser().getId() : null
+        );
+    }
+
+    private Project toEntity(ProjectDTO dto) {
+        Project project = new Project();
+        project.setId(dto.id());
+        project.setTitle(dto.title());
+        project.setProjectDate(dto.projectDate());
+        // User must be set in service or elsewhere, as only userId is available in DTO
+        return project;
     }
 }
